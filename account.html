@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account - WAZAAR </title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav>
+  <a class="nav-logo" href="#">
+    <img src="images/logo.webp" alt="WAZAAR Logo" onerror="this.style.display='none'">
+  </a>
+  <!-- <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#business-model">Model</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#marketing">Marketing</a></li>
+    <li><a href="#financials">Financials</a></li>
+    <li><a href="#investor">Invest</a></li>
+  </ul> -->
+  <div class="nav-right">
+    <a href="#" class="btn-account">Account</a>
+    
+  </div>
+</nav>
+
+
+
+<section class="account-section">
+  <div class="account-card">
+
+    <div class="account-header">
+      <h2>Admin Account</h2>
+      <p>Login to access the WAZAAR dashboard.</p>
+    </div>
+
+    <form class="account-form" action="dashboard.html">
+      
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" placeholder="Enter your username" required>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" placeholder="Enter your password" required>
+      </div>
+
+      <button type="submit">Login</button>
+
+    </form>
+
+  </div>
+</section>
+
+<script>
+document.querySelector('.account-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const username = document.querySelector('input[type="text"]').value;
+    const password = document.querySelector('input[type="password"]').value;
+
+    if (username === 'admin' && password === 'admin') {
+        window.location.href = 'dashboard.html';
+    } else {
+        alert('Invalid username or password');
+    }
+});
+</script>
+
+<style>
+    .account-section{
+  padding:100px 5%;
+  background:#f8f9fb;
+  display:flex;
+  justify-content:center;
+}
+
+.account-card{
+  width:100%;
+  max-width:480px;
+  background:#fff;
+  border-radius:24px;
+  padding:40px;
+  box-shadow:0 20px 60px rgba(0,0,0,.08);
+}
+
+.account-header{
+  text-align:center;
+  margin-bottom:30px;
+}
+
+.account-header h2{
+  margin-bottom:10px;
+  color: var(--green-dark);
+  font-size:2rem;
+}
+
+.account-header p{
+  color:#666;
+}
+
+.account-form{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.form-group{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.form-group label{
+  font-weight:600;
+}
+
+.form-group input{
+  height:52px;
+  padding:0 16px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  outline:none;
+}
+
+.form-group input:focus{
+  border-color:var(--green);
+}
+
+.account-form button{
+  height:fit-content;
+  border:none;
+  border-radius:12px;
+  padding: 10px 20px;
+  background:var(--green);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.demo-credentials{
+  margin-top:25px;
+  padding:18px;
+  border-radius:12px;
+  background:#f4f6f8;
+  text-align:center;
+}
+
+.demo-credentials span{
+  display:block;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.demo-credentials p{
+  margin:4px 0;
+}
+</style>
+
+
+
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-content">
+
+    <a class="footer-logo" href="#">
+      <img src="images/logo.webp" alt="WAZAAR Logo">
+    </a>
+
+    <p class="footer-text">
+      Turning WhatsApp into a fully automated store for every small business.
+      No code, no website, no complexity — just growth.
+    </p>
+
+    <div class="footer-social">
+      <a href="#"><img src="https://img.icons8.com/?size=100&id=60440&format=png&color=FFFFFF" alt="Facebook"></a>
+      <a href="#"><img src="https://img.icons8.com/?size=100&id=32309&format=png&color=FFFFFF" alt="Instagram"></a>
+      <a href="#"><img src="https://img.icons8.com/?size=100&id=37326&format=png&color=FFFFFF" alt="Youtube"></a>
+      <a href="#"><img src="https://img.icons8.com/?size=100&id=16733&format=png&color=FFFFFF" alt="WhatsApp"></a>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2026 <span class="brand">WAZAAR</span>. All rights reserved.</span>
+  </div>
+</footer>
+<script>
+  // Mobile nav toggle
+  function toggleMenu() {
+    const nav = document.getElementById('mobileNav');
+    nav.classList.toggle('open');
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Stagger children of reveal containers
+  document.querySelectorAll('.trends-grid, .swot-grid, .pestle-grid, .bm-grid, .comm-grid, .kpi-grid, .legal-grid, .pitch-grid, .personas-grid').forEach(grid => {
+    grid.querySelectorAll(':scope > *').forEach((child, i) => {
+      child.style.transitionDelay = (i * 0.07) + 's';
+    });
+  });
+</script>
+</body>
+</html>

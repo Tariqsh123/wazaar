@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAZaAR - WhatsApp Store Builder</title>
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Poppins:wght@500;600&amp;display=swap');
+        
+        :root {
+            --primary: #10b981;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .app-header {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .mobile-frame {
+            max-width: 420px;
+            margin: 0 auto;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+            border-radius: 48px;
+            overflow: hidden;
+            background: white;
+            border: 12px solid #111827;
+        }
+        
+        .nav-active {
+            color: #10b981;
+            border-bottom: 3px solid #10b981;
+        }
+        
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        
+        .status-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .sidebar-item {
+            transition: all 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+    <div class="flex h-screen">
+        <!-- Desktop Sidebar -->
+        <div class="hidden lg:flex w-72 bg-zinc-900 flex-col border-r border-zinc-800">
+            <div class="app-header p-6 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-emerald-600 font-bold text-2xl">W</div>
+                    <div>
+                        <h1 class="text-2xl font-semibold tracking-tight">WAZaAR</h1>
+                        <p class="text-xs text-emerald-200">Store Builder</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <div onclick="switchTab(0)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-3xl hover:bg-zinc-800 cursor-pointer mb-1 active">
+                    <i class="fa-solid fa-house w-5"></i>
+                    <span class="font-medium">Dashboard</span>
+                </div>
+                <div onclick="switchTab(1)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-3xl hover:bg-zinc-800 cursor-pointer mb-1">
+                    <i class="fa-solid fa-box w-5"></i>
+                    <span class="font-medium">Products</span>
+                </div>
+                <div onclick="switchTab(2)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-3xl hover:bg-zinc-800 cursor-pointer mb-1">
+                    <i class="fa-solid fa-list-check w-5"></i>
+                    <span class="font-medium">Orders</span>
+                </div>
+                <div onclick="switchTab(3)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-3xl hover:bg-zinc-800 cursor-pointer mb-1">
+                    <i class="fa-solid fa-chart-line w-5"></i>
+                    <span class="font-medium">Analytics</span>
+                </div>
+                <div onclick="switchTab(4)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-3xl hover:bg-zinc-800 cursor-pointer mb-1">
+                    <i class="fa-solid fa-robot w-5"></i>
+                    <span class="font-medium">Automations</span>
+                </div>
+                <div onclick="switchTab(5)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-3xl hover:bg-zinc-800 cursor-pointer mb-1">
+                    <i class="fa-solid fa-credit-card w-5"></i>
+                    <span class="font-medium">Payments</span>
+                </div>
+                <div onclick="switchTab(6)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-3xl hover:bg-zinc-800 cursor-pointer">
+                    <i class="fa-solid fa-plug w-5"></i>
+                    <span class="font-medium">Integrations</span>
+                </div>
+            </div>
+            
+            <div class="mt-auto p-4 border-t border-zinc-800">
+                <div onclick="switchTab(7)" class="flex items-center gap-3 px-4 py-3 text-zinc-400 hover:text-white cursor-pointer">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </div>
+                <div class="flex items-center gap-3 px-4 py-3 text-zinc-400 hover:text-white cursor-pointer mt-1">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Aisha's Bakery</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <div class="h-14 bg-zinc-900 border-b border-zinc-800 flex items-center px-6 justify-between">
+                <div class="flex items-center gap-4">
+                    <!-- <button onclick="toggleMobileMenu()" class="lg:hidden text-zinc-400 hover:text-white">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button> -->
+                    <h1 id="page-title" class="font-semibold text-xl">Dashboard</h1>
+                </div>
+                
+                <div class="flex items-center gap-6">
+                    <div class="hidden md:flex items-center bg-zinc-800 rounded-full px-4 py-1.5 text-sm">
+                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse mr-2"></div>
+                        Store Active
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <div class="text-right">
+                            <div class="text-sm font-medium">Aisha Khan</div>
+                            <div class="text-xs text-zinc-500">Bakery Owner</div>
+                        </div>
+                        <div class="w-8 h-8 bg-amber-300 rounded-2xl flex items-center justify-center text-xl">🍰</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="flex-1 overflow-auto p-4 lg:p-8 bg-zinc-950" id="main-content">
+                <!-- Dashboard Tab -->
+                <div id="tab-0" class="tab-content">
+                    <div class="max-w-5xl mx-auto">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Store Status -->
+                            <div class="bg-zinc-900 rounded-3xl p-6">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="flex items-center gap-3">
+                                            <div class="text-4xl">🍰</div>
+                                            <div>
+                                                <div class="font-semibold text-2xl">Aisha's Bakery</div>
+                                                <div class="flex items-center gap-2 text-emerald-400">
+                                                    <span class="text-sm">Active</span>
+                                                    <span class="w-2 h-2 bg-emerald-400 rounded-full status-dot"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-emerald-900 text-emerald-300 text-xs px-3 py-1 rounded-2xl">wa.link/ab1xyz</div>
+                                </div>
+                                
+                                <div class="mt-8 grid grid-cols-2 gap-4">
+                                    <div onclick="switchTab(2)" class="bg-zinc-800 hover:bg-zinc-700 cursor-pointer rounded-3xl p-5 transition-all">
+                                        <div class="text-emerald-400 text-sm font-medium">NEW ORDERS</div>
+                                        <div id="new-orders" class="text-3xl font-semibold mt-2">12</div>
+                                        <div class="flex items-center gap-2 text-emerald-500 text-sm mt-6">
+                                            <i class="fa-solid fa-arrow-trend-up"></i>
+                                            <span>+18% this week</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div onclick="switchTab(2)" class="bg-zinc-800 hover:bg-zinc-700 cursor-pointer rounded-3xl p-5 transition-all">
+                                        <div class="text-amber-400 text-sm font-medium">PENDING</div>
+                                        <div id="pending-amount" class="text-3xl font-semibold mt-2">PKR 8,400</div>
+                                        <div class="text-xs text-zinc-400 mt-6">3 orders awaiting confirmation</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quick Actions -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="switchTab(1)" 
+                                        class="bg-gradient-to-br from-emerald-500 to-teal-600 h-48 rounded-3xl flex flex-col items-center justify-center text-white hover:scale-105 transition-all">
+                                    <i class="fa-solid fa-plus text-5xl mb-4"></i>
+                                    <div class="font-semibold">Add Product</div>
+                                </button>
+                                
+                                <button onclick="switchTab(4)" 
+                                        class="bg-gradient-to-br from-violet-500 to-purple-600 h-48 rounded-3xl flex flex-col items-center justify-center text-white hover:scale-105 transition-all">
+                                    <i class="fa-solid fa-robot text-5xl mb-4"></i>
+                                    <div class="font-semibold">Automations</div>
+                                </button>
+                                
+                                <button onclick="switchTab(3)" 
+                                        class="bg-gradient-to-br from-amber-500 to-orange-600 h-48 rounded-3xl flex flex-col items-center justify-center text-white hover:scale-105 transition-all">
+                                    <i class="fa-solid fa-chart-pie text-5xl mb-4"></i>
+                                    <div class="font-semibold">Analytics</div>
+                                </button>
+                                
+                                <button onclick="showPaymentLinkModal()" 
+                                        class="bg-gradient-to-br from-sky-500 to-blue-600 h-48 rounded-3xl flex flex-col items-center justify-center text-white hover:scale-105 transition-all">
+                                    <i class="fa-solid fa-link text-5xl mb-4"></i>
+                                    <div class="font-semibold">Payment Link</div>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Orders -->
+                        <div class="mt-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-semibold">Recent Orders</h2>
+                                <button onclick="switchTab(2)" class="text-emerald-400 text-sm flex items-center gap-1">
+                                    View all <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                            
+                            <div id="recent-orders-list" class="space-y-3">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Products Tab -->
+                <div id="tab-1" class="tab-content hidden">
+                    <div class="max-w-6xl mx-auto">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-semibold">Products</h2>
+                            <button onclick="showAddProductModal()" 
+                                    class="bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-3xl flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Add New Product</span>
+                            </button>
+                        </div>
+                        
+                        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Tab -->
+                <div id="tab-2" class="tab-content hidden">
+                    <div class="max-w-6xl mx-auto">
+                        <div class="flex justify-between mb-6">
+                            <h2 class="text-2xl font-semibold">Orders</h2>
+                            <div class="flex gap-3">
+                                <select id="order-filter" onchange="filterOrders()" class="bg-zinc-900 border border-zinc-700 rounded-3xl px-4 py-2 text-sm">
+                                    <option value="all">All Orders</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="paid">Paid</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="orders-table" class="bg-zinc-900 rounded-3xl overflow-hidden">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Tab -->
+                <div id="tab-3" class="tab-content hidden">
+                    <div class="max-w-5xl mx-auto">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div class="bg-zinc-900 rounded-3xl p-6">
+                                <div class="text-zinc-400 text-sm">Orders Today</div>
+                                <div class="text-6xl font-semibold mt-2" id="orders-today">14</div>
+                                <div class="text-emerald-400 text-sm mt-6">↑ 23% from yesterday</div>
+                            </div>
+                            <div class="bg-zinc-900 rounded-3xl p-6">
+                                <div class="text-zinc-400 text-sm">Revenue Today</div>
+                                <div class="text-6xl font-semibold mt-2" id="revenue-today">PKR 14,200</div>
+                                <div class="text-emerald-400 text-sm mt-6">↑ 9% from yesterday</div>
+                            </div>
+                            <div class="bg-zinc-900 rounded-3xl p-6">
+                                <div class="text-zinc-400 text-sm">This Month</div>
+                                <div class="text-6xl font-semibold mt-2" id="revenue-month">PKR 187,500</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-zinc-900 rounded-3xl p-8">
+                            <div class="flex justify-between mb-6">
+                                <h3 class="font-semibold">Revenue Trend (Last 7 days)</h3>
+                            </div>
+                            <canvas id="revenueChart" height="120"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Automations Tab -->
+                <div id="tab-4" class="tab-content hidden">
+                    <div class="max-w-2xl mx-auto bg-zinc-900 rounded-3xl p-8">
+                        <h2 class="text-2xl font-semibold mb-6">Automation Flows</h2>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between bg-zinc-800 p-5 rounded-3xl">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl">👋</div>
+                                    <div>
+                                        <div class="font-medium">Welcome Greeting</div>
+                                        <div class="text-sm text-zinc-400">Sent automatically to new customers</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer" onchange="toggleAutomation(this)">
+                                    <div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center justify-between bg-zinc-800 p-5 rounded-3xl">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl">📋</div>
+                                    <div>
+                                        <div class="font-medium">Product Catalog</div>
+                                        <div class="text-sm text-zinc-400">Show menu when customer asks</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer" onchange="toggleAutomation(this)">
+                                    <div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center justify-between bg-zinc-800 p-5 rounded-3xl">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-2xl">✅</div>
+                                    <div>
+                                        <div class="font-medium">Order Confirmation</div>
+                                        <div class="text-sm text-zinc-400">Send receipt after payment</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer" onchange="toggleAutomation(this)">
+                                    <div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payments Tab -->
+                <div id="tab-5" class="tab-content hidden">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="bg-zinc-900 rounded-3xl p-8">
+                            <h2 class="font-semibold text-2xl mb-8">Payments &amp; Links</h2>
+                            
+                            <button onclick="showPaymentLinkModal()" 
+                                    class="w-full py-8 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-3xl text-white flex flex-col items-center">
+                                <i class="fa-solid fa-link text-6xl mb-4"></i>
+                                <span class="text-xl font-medium">Generate New Payment Link</span>
+                            </button>
+                            
+                            <div class="mt-10">
+                                <h3 class="font-medium mb-4">Recent Transactions</h3>
+                                <div id="payment-history" class="space-y-3">
+                                    <!-- JS populated -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Integrations Tab -->
+                <div id="tab-6" class="tab-content hidden">
+                    <div class="max-w-3xl mx-auto bg-zinc-900 rounded-3xl p-8">
+                        <h2 class="text-2xl font-semibold mb-8">Integrations</h2>
+                        
+                        <div class="space-y-5">
+                            <div class="flex justify-between items-center border-b border-zinc-700 pb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-blue-500 rounded-2xl flex items-center justify-center text-white">J</div>
+                                    <div>
+                                        <div>JazzCash</div>
+                                        <div class="text-xs text-zinc-500">Pakistani payments</div>
+                                    </div>
+                                </div>
+                                <div class="px-5 py-2 bg-emerald-600 text-white rounded-3xl text-sm">Connected</div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center border-b border-zinc-700 pb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-white">E</div>
+                                    <div>
+                                        <div>EasyPaisa</div>
+                                        <div class="text-xs text-zinc-500">Mobile wallet</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-600"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-purple-500 rounded-2xl flex items-center justify-center text-white">Z</div>
+                                    <div>
+                                        <div>Zapier</div>
+                                        <div class="text-xs text-zinc-500">Automation</div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Tab -->
+                <div id="tab-7" class="tab-content hidden">
+                    <div class="max-w-xl mx-auto bg-zinc-900 rounded-3xl p-8">
+                        <h2 class="text-2xl font-semibold mb-6">Store Settings</h2>
+                        
+                        <div class="space-y-8">
+                            <div>
+                                <label class="block text-sm text-zinc-400 mb-2">Store Name</label>
+                                <input id="store-name" value="Aisha's Bakery" 
+                                       class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-5 py-4 focus:outline-none focus:border-emerald-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm text-zinc-400 mb-2">Store Link</label>
+                                <div class="flex">
+                                    <input id="store-link" value="wa.link/ab1xyz" 
+                                           class="flex-1 bg-zinc-800 border border-zinc-700 rounded-l-3xl px-5 py-4 focus:outline-none">
+                                    <button onclick="copyLink()" 
+                                            class="bg-emerald-600 hover:bg-emerald-700 px-6 rounded-r-3xl">Copy</button>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm text-zinc-400 mb-2">Open Time</label>
+                                    <input type="time" value="09:00" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-5 py-4">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-zinc-400 mb-2">Close Time</label>
+                                    <input type="time" value="22:00" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-5 py-4">
+                                </div>
+                            </div>
+                            
+                            <button onclick="saveSettings()" 
+                                    class="w-full bg-emerald-600 py-5 text-lg font-medium rounded-3xl">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Mobile Navigation -->
+            <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-700 z-50">
+                <div class="max-w-md mx-auto flex justify-around py-2 text-xs">
+                    <button onclick="switchTab(0)" class="flex flex-col items-center py-1 px-3 text-emerald-400">
+                        <i class="fa-solid fa-house text-xl"></i>
+                        <span class="mt-1">Home</span>
+                    </button>
+                    <button onclick="switchTab(1)" class="flex flex-col items-center py-1 px-3 text-zinc-400 hover:text-zinc-100">
+                        <i class="fa-solid fa-box text-xl"></i>
+                        <span class="mt-1">Products</span>
+                    </button>
+                    <button onclick="switchTab(2)" class="flex flex-col items-center py-1 px-3 text-zinc-400 hover:text-zinc-100">
+                        <i class="fa-solid fa-receipt text-xl"></i>
+                        <span class="mt-1">Orders</span>
+                    </button>
+                    <button onclick="switchTab(3)" class="flex flex-col items-center py-1 px-3 text-zinc-400 hover:text-zinc-100">
+                        <i class="fa-solid fa-chart-line text-xl"></i>
+                        <span class="mt-1">Stats</span>
+                    </button>
+                    <button onclick="switchTab(5)" class="flex flex-col items-center py-1 px-3 text-zinc-400 hover:text-zinc-100">
+                        <i class="fa-solid fa-wallet text-xl"></i>
+                        <span class="mt-1">Pay</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Product Modal -->
+    <div id="add-product-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+        <div class="bg-zinc-900 w-full max-w-lg mx-4 rounded-3xl overflow-hidden">
+            <div class="p-6 border-b border-zinc-700 flex justify-between">
+                <h3 class="font-semibold text-xl">Add New Product</h3>
+                <button onclick="hideAddProductModal()" class="text-zinc-400">✕</button>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-1.5">Product Name</label>
+                    <input id="new-product-name" type="text" value="Strawberry Cheesecake" 
+                           class="w-full bg-zinc-800 rounded-3xl px-5 py-4 outline-none border border-transparent focus:border-emerald-500">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-1.5">Price (PKR)</label>
+                        <input id="new-product-price" type="number" value="1250" 
+                               class="w-full bg-zinc-800 rounded-3xl px-5 py-4 outline-none border border-transparent focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-1.5">Stock</label>
+                        <input id="new-product-stock" type="number" value="8" 
+                               class="w-full bg-zinc-800 rounded-3xl px-5 py-4 outline-none border border-transparent focus:border-emerald-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-1.5">Description</label>
+                    <textarea id="new-product-desc" rows="3" 
+                              class="w-full bg-zinc-800 rounded-3xl px-5 py-4 outline-none border border-transparent focus:border-emerald-500">Fresh strawberries on creamy cheesecake. Perfect for celebrations.</textarea>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-zinc-700 flex gap-4">
+                <button onclick="hideAddProductModal()" 
+                        class="flex-1 py-4 rounded-3xl border border-zinc-700">Cancel</button>
+                <button onclick="addNewProduct()" 
+                        class="flex-1 py-4 bg-emerald-600 rounded-3xl">Publish Product</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Detail Modal -->
+    <div id="order-detail-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+        <div class="bg-zinc-900 w-full max-w-md mx-4 rounded-3xl">
+            <div class="p-6 flex justify-between border-b border-zinc-700">
+                <div>
+                    <span class="text-xs text-zinc-400">ORDER</span>
+                    <div id="modal-order-id" class="font-mono font-semibold text-xl">#2341</div>
+                </div>
+                <button onclick="hideOrderModal()" class="text-3xl leading-none text-zinc-400">×</button>
+            </div>
+            
+            <div class="p-6" id="order-detail-content">
+                <!-- JS populated -->
+            </div>
+            
+            <div class="p-6 border-t border-zinc-700 flex gap-3">
+                <button onclick="cancelCurrentOrder()" 
+                        class="flex-1 py-4 text-red-400 border border-red-400 rounded-3xl">Cancel Order</button>
+                <button onclick="markOrderPaid()" 
+                        class="flex-1 py-4 bg-emerald-600 rounded-3xl">Mark as Paid</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Link Modal -->
+    <div id="payment-link-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+        <div class="bg-zinc-900 w-full max-w-md mx-4 rounded-3xl overflow-hidden">
+            <div class="p-8">
+                <h3 class="text-center text-xl font-semibold mb-8">Payment Link Generator</h3>
+                
+                <div class="bg-zinc-800 rounded-3xl p-6 text-center">
+                    <div class="text-emerald-400 mb-1">✅ Link Created</div>
+                    <div id="generated-link" class="font-mono text-sm break-all bg-black/40 p-3 rounded-2xl">https://wa.link/pay/abc123def</div>
+                </div>
+                
+                <button onclick="copyGeneratedLink()" 
+                        class="w-full mt-8 py-4 bg-white text-zinc-900 rounded-3xl font-medium">Copy Link</button>
+            </div>
+            
+            <div class="border-t border-zinc-700 p-6">
+                <button onclick="hidePaymentModal()" class="w-full py-3 text-zinc-400">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tailwind script already loaded
+        
+        let currentTab = 0;
+        let products = [];
+        let orders = [];
+        let revenueChart;
+        
+        // Sample data
+        function initializeData() {
+            // Products
+            products = [
+                {
+                    id: 1,
+                    name: "Chocolate Cake",
+                    price: 1000,
+                    stock: 12,
+                    image: "🍫"
+                },
+                {
+                    id: 2,
+                    name: "Cupcakes Assorted",
+                    price: 1200,
+                    stock: 25,
+                    image: "🧁"
+                },
+                {
+                    id: 3,
+                    name: "Strawberry Cake",
+                    price: 1350,
+                    stock: 8,
+                    image: "🍓"
+                },
+                {
+                    id: 4,
+                    name: "Heart Cake",
+                    price: 1500,
+                    stock: 5,
+                    image: "💖"
+                }
+            ];
+            
+            // Orders
+            orders = [
+                {
+                    id: "#2234",
+                    customer: "Sehina",
+                    amount: 2500,
+                    status: "pending",
+                    date: "2m ago",
+                    items: ["Chocolate Cake x1"]
+                },
+                {
+                    id: "#2233",
+                    customer: "Zainab",
+                    amount: 1000,
+                    status: "paid",
+                    date: "Yesterday",
+                    items: ["Cupcakes x2"]
+                },
+                {
+                    id: "#2232",
+                    customer: "Bilal",
+                    amount: 1200,
+                    status: "pending",
+                    date: "Yesterday",
+                    items: ["Strawberry Cake"]
+                }
+            ];
+            
+            localStorage.setItem('wazaar_products', JSON.stringify(products));
+            localStorage.setItem('wazaar_orders', JSON.stringify(orders));
+        }
+        
+        function loadData() {
+            const savedProducts = localStorage.getItem('wazaar_products');
+            if (savedProducts) products = JSON.parse(savedProducts);
+            
+            const savedOrders = localStorage.getItem('wazaar_orders');
+            if (savedOrders) orders = JSON.parse(savedOrders);
+        }
+        
+        function saveData() {
+            localStorage.setItem('wazaar_products', JSON.stringify(products));
+            localStorage.setItem('wazaar_orders', JSON.stringify(orders));
+        }
+        
+        function renderProducts() {
+            const container = document.getElementById('products-grid');
+            container.innerHTML = '';
+            
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'bg-zinc-900 rounded-3xl overflow-hidden product-card cursor-pointer';
+                card.innerHTML = `
+                    <div class="h-40 flex items-center justify-center text-7xl bg-gradient-to-br from-zinc-800 to-zinc-900">
+                        ${product.image}
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold">${product.name}</div>
+                        <div class="flex justify-between text-sm mt-4">
+                            <div>PKR <span class="font-medium">${product.price}</span></div>
+                            <div class="text-emerald-400">${product.stock} left</div>
+                        </div>
+                    </div>
+                `;
+                card.onclick = () => alert(`Opened details for ${product.name}`);
+                container.appendChild(card);
+            });
+        }
+        
+        function renderRecentOrders() {
+            const container = document.getElementById('recent-orders-list');
+            container.innerHTML = '';
+            
+            orders.slice(0, 3).forEach(order => {
+                const div = document.createElement('div');
+                div.className = `flex justify-between items-center bg-zinc-900 px-5 py-4 rounded-3xl cursor-pointer hover:bg-zinc-800`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="text-3xl">${order.status === 'paid' ? '✅' : '⏳'}</div>
+                        <div>
+                            <div class="font-medium">${order.customer}</div>
+                            <div class="text-xs text-zinc-500">${order.id} • ${order.date}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-semibold">PKR ${order.amount}</div>
+                        <div onclick="event.stopImmediatePropagation(); viewOrder('${order.id}')" class="text-xs text-emerald-400 mt-1">View</div>
+                    </div>
+                `;
+                div.onclick = () => viewOrder(order.id);
+                container.appendChild(div);
+            });
+        }
+        
+        function renderOrdersTable(filter = 'all') {
+            const container = document.getElementById('orders-table');
+            let filteredOrders = orders;
+            
+            if (filter === 'pending') {
+                filteredOrders = orders.filter(o => o.status === 'pending');
+            } else if (filter === 'paid') {
+                filteredOrders = orders.filter(o => o.status === 'paid');
+            }
+            
+            let html = `
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-zinc-700">
+                            <th class="text-left py-5 px-8 font-normal text-zinc-400">Order ID</th>
+                            <th class="text-left py-5 px-8 font-normal text-zinc-400">Customer</th>
+                            <th class="text-left py-5 px-8 font-normal text-zinc-400">Amount</th>
+                            <th class="text-left py-5 px-8 font-normal text-zinc-400">Status</th>
+                            <th class="w-28"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            filteredOrders.forEach(order => {
+                html += `
+                    <tr onclick="viewOrder('${order.id}')" class="border-b border-zinc-800 hover:bg-zinc-800/70 cursor-pointer">
+                        <td class="py-5 px-8 font-medium">${order.id}</td>
+                        <td class="py-5 px-8">${order.customer}</td>
+                        <td class="py-5 px-8 font-medium">PKR ${order.amount}</td>
+                        <td class="py-5 px-8">
+                            <span class="inline-block px-4 py-1 text-xs rounded-3xl ${order.status === 'paid' ? 'bg-emerald-900 text-emerald-400' : 'bg-amber-900 text-amber-400'}">
+                                ${order.status.toUpperCase()}
+                            </span>
+                        </td>
+                        <td class="py-5 px-8">
+                            <button onclick="event.stopImmediatePropagation(); markOrderPaidById('${order.id}')" 
+                                    class="text-xs bg-emerald-600 px-5 py-2 rounded-3xl">Paid</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+        
+        function renderPaymentHistory() {
+            const container = document.getElementById('payment-history');
+            container.innerHTML = `
+                <div class="flex justify-between bg-zinc-800 rounded-3xl p-5">
+                    <div>
+                        <div class="font-medium">#2234 • Sehina</div>
+                        <div class="text-xs text-zinc-500">2 hours ago</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-emerald-400 font-medium">PKR 2,500</div>
+                        <div class="text-xs">✅ Paid</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function initChart() {
+            const ctx = document.getElementById('revenueChart');
+            if (revenueChart) revenueChart.destroy();
+            
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Revenue (PKR)',
+                        data: [4200, 3100, 6800, 5400, 9200, 7800, 11200],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: '#27272a' }, ticks: { color: '#a1a1aa' } },
+                        x: { grid: { color: '#27272a' }, ticks: { color: '#a1a1aa' } }
+                    }
+                }
+            });
+        }
+        
+        function switchTab(tabIndex) {
+            // Remove active from all
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            // Show selected
+            document.getElementById(`tab-${tabIndex}`).classList.remove('hidden');
+            
+            currentTab = tabIndex;
+            document.getElementById('page-title').textContent = ['Dashboard', 'Products', 'Orders', 'Analytics', 'Automations', 'Payments', 'Integrations', 'Settings'][tabIndex];
+            
+            // Refresh content
+            if (tabIndex === 1) renderProducts();
+            if (tabIndex === 2) renderOrdersTable();
+            if (tabIndex === 3) initChart();
+        }
+        
+        function showAddProductModal() {
+            document.getElementById('add-product-modal').classList.remove('hidden');
+        }
+        
+        function hideAddProductModal() {
+            document.getElementById('add-product-modal').classList.add('hidden');
+        }
+        
+        function addNewProduct() {
+            const name = document.getElementById('new-product-name').value;
+            const price = parseInt(document.getElementById('new-product-price').value);
+            const stock = parseInt(document.getElementById('new-product-stock').value);
+            
+            if (!name || !price) {
+                alert("Please fill product name and price");
+                return;
+            }
+            
+            const newProduct = {
+                id: Date.now(),
+                name: name,
+                price: price,
+                stock: stock || 10,
+                image: "🍰"
+            };
+            
+            products.unshift(newProduct);
+            saveData();
+            renderProducts();
+            hideAddProductModal();
+            
+            // Toast
+            showToast("Product published successfully!");
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:#10b981; color:white; padding:16px 24px; border-radius:9999px; box-shadow:0 10px 15px -3px rgb(0 0 0); z-index:9999;';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2800);
+        }
+        
+        function viewOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const modal = document.getElementById('order-detail-modal');
+            const content = document.getElementById('order-detail-content');
+            
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between">
+                            <div class="font-semibold text-lg">${order.customer}</div>
+                            <span class="px-4 py-1 text-xs bg-amber-900 text-amber-400 rounded-3xl">${order.status.toUpperCase()}</span>
+                        </div>
+                        <div class="text-xs text-zinc-500 mt-1">${order.date}</div>
+                    </div>
+                    
+                    <div class="bg-zinc-800 rounded-3xl p-5">
+                        ${order.items.map(item => `<div class="flex justify-between py-1"><span>${item}</span><span>PKR ${order.amount}</span></div>`).join('')}
+                    </div>
+                    
+                    <div class="flex justify-between text-lg">
+                        <span class="font-medium">Total</span>
+                        <span class="font-semibold">PKR ${order.amount}</span>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            window.currentViewedOrderId = orderId;
+        }
+        
+        function hideOrderModal() {
+            document.getElementById('order-detail-modal').classList.add('hidden');
+        }
+        
+        function markOrderPaid() {
+            const id = window.currentViewedOrderId;
+            markOrderPaidById(id);
+            hideOrderModal();
+        }
+        
+        function markOrderPaidById(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = 'paid';
+                saveData();
+                renderOrdersTable(document.getElementById('order-filter').value);
+                renderRecentOrders();
+                showToast(`Order ${id} marked as paid!`);
+            }
+        }
+        
+        function cancelCurrentOrder() {
+            if (confirm("Cancel this order?")) {
+                hideOrderModal();
+                showToast("Order cancelled.");
+            }
+        }
+        
+        function filterOrders() {
+            const filter = document.getElementById('order-filter').value;
+            renderOrdersTable(filter);
+        }
+        
+        function showPaymentLinkModal() {
+            document.getElementById('payment-link-modal').classList.remove('hidden');
+            document.getElementById('generated-link').textContent = `https://wa.link/pay/${Math.random().toString(36).substring(2, 10)}`;
+        }
+        
+        function hidePaymentModal() {
+            document.getElementById('payment-link-modal').classList.add('hidden');
+        }
+        
+        function copyGeneratedLink() {
+            const link = document.getElementById('generated-link').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast("Payment link copied to clipboard!");
+            });
+        }
+        
+        function copyLink() {
+            showToast("Store link copied!");
+        }
+        
+        function saveSettings() {
+            showToast("Settings saved successfully!");
+        }
+        
+        function toggleAutomation(el) {
+            // noop for demo
+        }
+        
+        function toggleMobileMenu() {
+            alert("Mobile menu would appear here in a full app.");
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.metaKey && e.key === "k") {
+                e.preventDefault();
+                alert("Command palette opened (demo)");
+            }
+        });
+        
+        // Initialize everything
+        function initializeApp() {
+            loadData();
+            if (products.length === 0) initializeData();
+            
+            // Render initial views
+            renderProducts();
+            renderRecentOrders();
+            renderOrdersTable();
+            renderPaymentHistory();
+            initChart();
+            
+            // Show dashboard by default
+            switchTab(0);
+            
+            // Demo new order count
+            document.getElementById('new-orders').textContent = orders.length + 5;
+            document.getElementById('pending-amount').textContent = 'PKR 12,700';
+            
+            console.log('%c✅ WAZaAR Dashboard initialized successfully!', 'color:#10b981; font-size:13px');
+        }
+        
+        // Boot app
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
