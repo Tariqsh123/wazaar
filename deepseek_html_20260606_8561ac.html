@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WAZAAR – Turn Your WhatsApp into a Fully Automated Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #25D366;
+    --green-dark: #128C7E;
+    --green-light: #DCF8C6;
+    --green-mid: #075E54;
+    --black: #0A0F0D;
+    --offwhite: #F5FBF7;
+    --gray: #6B7A72;
+    --gray-light: #E8F2EC;
+    --white: #ffffff;
+    --accent: #FF6B35;
+    --card-bg: #FAFFFE;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--offwhite);
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5%;
+    height: 70px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(37,211,102,0.15);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+  }
+
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+  .nav-logo img { height: 38px; width: auto; }
+  .nav-logo .brand-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.5rem;
+    color: var(--green-mid);
+    letter-spacing: -0.5px;
+  }
+  .nav-logo .brand-name span { color: var(--green); }
+
+  .nav-links {
+    display: flex; align-items: center; gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.9rem; font-weight: 500;
+    color: var(--black); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--green); }
+
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+
+  .btn-account {
+    background: var(--green);
+    color: #fff;
+    padding: 9px 22px;
+    border-radius: 50px;
+    font-weight: 600; font-size: 0.88rem;
+    text-decoration: none;
+    border: none; cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    white-space: nowrap;
+  }
+  .btn-account:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+  .hamburger {
+    display: none;
+    flex-direction: column; gap: 5px; cursor: pointer;
+    background: none; border: none; padding: 4px;
+  }
+  .hamburger span {
+    display: block; width: 24px; height: 2px;
+    background: var(--black); border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  /* ── MOBILE NAV ── */
+  .mobile-nav {
+    display: none;
+    position: fixed; top: 70px; left: 0; right: 0; z-index: 998;
+    background: #fff;
+    padding: 20px 5%;
+    border-bottom: 1px solid var(--gray-light);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .mobile-nav.open { display: block; }
+  .mobile-nav a {
+    display: block; padding: 12px 0;
+    font-weight: 500; color: var(--black);
+    text-decoration: none; border-bottom: 1px solid var(--gray-light);
+    font-size: 0.95rem;
+  }
+  .mobile-nav a:last-child { border: none; }
+  .mobile-nav .btn-account { display: inline-block; margin-top: 16px; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 110px 5% 80px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0A2E1E 0%, #075E54 55%, #128C7E 100%);
+  }
+
+  .hero-bg-dots {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle, rgba(37,211,102,0.15) 1px, transparent 1px);
+    background-size: 36px 36px;
+    animation: bgFloat 20s linear infinite;
+  }
+  @keyframes bgFloat { from { background-position: 0 0; } to { background-position: 36px 36px; } }
+
+  .hero-glow {
+    position: absolute; top: -200px; right: -200px;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(37,211,102,0.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    position: relative; z-index: 2;
+    max-width: 1200px; margin: 0 auto; width: 100%;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(37,211,102,0.15);
+    border: 1px solid rgba(37,211,102,0.4);
+    color: var(--green);
+    padding: 6px 16px; border-radius: 50px;
+    font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-badge::before { content: '●'; font-size: 0.6rem; animation: pulse 1.5s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800; line-height: 1.1;
+    color: #fff;
+    margin-bottom: 20px;
+    animation: fadeUp 0.7s ease 0.1s both;
+  }
+  .hero h1 .highlight { color: var(--green); }
+
+  .hero-tagline {
+    font-size: 1.15rem; color: rgba(255,255,255,0.75);
+    line-height: 1.6; margin-bottom: 36px;
+    animation: fadeUp 0.7s ease 0.2s both;
+  }
+
+  .hero-cta {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    animation: fadeUp 0.7s ease 0.3s both;
+  }
+  .btn-primary {
+    background: var(--green); color: #fff;
+    padding: 14px 32px; border-radius: 50px;
+    font-weight: 700; font-size: 0.95rem;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 30px rgba(37,211,102,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(37,211,102,0.5); }
+  .btn-ghost {
+    background: transparent; color: #fff;
+    padding: 14px 32px; border-radius: 50px;
+    font-weight: 600; font-size: 0.95rem;
+    text-decoration: none;
+    border: 2px solid rgba(255,255,255,0.3);
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+
+  .hero-stats {
+    display: flex; gap: 32px; margin-top: 44px;
+    animation: fadeUp 0.7s ease 0.4s both;
+  }
+  .hero-stat { }
+  .hero-stat .num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem; font-weight: 800; color: var(--green);
+    line-height: 1;
+  }
+  .hero-stat .lbl { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 4px; }
+
+  .hero-visual {
+    animation: fadeUp 0.7s ease 0.3s both;
+    display: flex; justify-content: center; align-items: center;
+  }
+
+  .phone-mockup {
+    width: 300px;
+    background: #1a1a1a;
+    border-radius: 36px;
+    padding: 14px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+    position: relative;
+  }
+  .phone-screen {
+    background: #fff;
+    border-radius: 26px;
+    overflow: hidden;
+  }
+  .phone-statusbar {
+    background: #25D366; color: #fff;
+    padding: 8px 16px;
+    font-size: 0.7rem; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .phone-statusbar .dot { width: 8px; height: 8px; background: #fff; border-radius: 50%; }
+  .wa-chat { padding: 12px; background: #ECE5DD; min-height: 280px; }
+  .wa-msg {
+    margin-bottom: 10px;
+    display: flex;
+  }
+  .wa-msg.in { justify-content: flex-start; }
+  .wa-msg.out { justify-content: flex-end; }
+  .wa-bubble {
+    max-width: 75%; padding: 8px 12px;
+    border-radius: 12px; font-size: 0.75rem; line-height: 1.4;
+  }
+  .wa-bubble.in { background: #fff; border-radius: 0 12px 12px 12px; color: #111; }
+  .wa-bubble.out { background: #DCF8C6; border-radius: 12px 0 12px 12px; color: #111; }
+  .wa-bubble strong { display: block; font-size: 0.7rem; color: var(--green); margin-bottom: 2px; }
+  .wa-time { font-size: 0.6rem; color: #999; text-align: right; margin-top: 3px; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── SECTIONS ── */
+  section { padding: 90px 5%; }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .section-label {
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--green);
+    margin-bottom: 10px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800; line-height: 1.15;
+    color: var(--black); margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 1rem; color: var(--gray); line-height: 1.7;
+    max-width: 600px;
+  }
+
+  /* ── BIG IDEA SECTION ── */
+  .idea-section { background: var(--white); }
+  .idea-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+    margin-top: 50px;
+  }
+  .idea-content p { font-size: 1rem; color: var(--gray); line-height: 1.8; margin-bottom: 18px; }
+  .big-idea-quote {
+    background: linear-gradient(135deg, var(--green-mid), var(--green));
+    color: #fff; padding: 28px 32px; border-radius: 16px;
+    font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700;
+    line-height: 1.4;
+    margin: 24px 0;
+    position: relative;
+  }
+  .big-idea-quote::before { content: '"'; font-size: 4rem; opacity: 0.2; position: absolute; top: 0; left: 16px; line-height: 1; }
+
+  .alignment-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .alignment-table thead th {
+    background: var(--green-mid); color: #fff;
+    padding: 12px 16px; text-align: left;
+    font-family: 'Syne', sans-serif; font-weight: 700;
+  }
+  .alignment-table thead th:first-child { border-radius: 10px 0 0 0; }
+  .alignment-table thead th:last-child { border-radius: 0 10px 0 0; }
+  .alignment-table tbody tr:nth-child(even) { background: var(--gray-light); }
+  .alignment-table tbody td { padding: 11px 16px; border-bottom: 1px solid #e8f2ec; }
+  .alignment-table tbody td:first-child { font-weight: 600; color: var(--green-mid); }
+
+  /* ── MARKET TRENDS ── */
+  .trends-section { background: var(--offwhite); }
+  .trends-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;
+    margin-top: 40px;
+  }
+  .trend-card {
+    background: var(--white); border-radius: 14px;
+    padding: 24px; border: 1px solid var(--gray-light);
+    transition: all 0.25s;
+  }
+  .trend-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(37,211,102,0.12); border-color: var(--green); }
+  .trend-icon { font-size: 2rem; margin-bottom: 12px; }
+  .trend-card h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--black); margin-bottom: 8px; }
+  .trend-card p { font-size: 0.85rem; color: var(--gray); line-height: 1.6; }
+
+  /* ── SWOT ── */
+  .swot-section { background: var(--black); }
+  .swot-section .section-title { color: #fff; }
+  .swot-section .section-sub { color: rgba(255,255,255,0.5); }
+  .swot-section .section-label { color: var(--green); }
+  .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; }
+  .swot-card { border-radius: 14px; padding: 28px; }
+  .swot-card.s { background: linear-gradient(135deg, #0A2E1E, #075E54); }
+  .swot-card.w { background: linear-gradient(135deg, #1a1200, #3d2b00); }
+  .swot-card.o { background: linear-gradient(135deg, #001a2e, #003d70); }
+  .swot-card.t { background: linear-gradient(135deg, #2e000a, #700020); }
+  .swot-card h3 {
+    font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .swot-card.s h3 { color: var(--green); }
+  .swot-card.w h3 { color: #FFD700; }
+  .swot-card.o h3 { color: #60B8FF; }
+  .swot-card.t h3 { color: #FF8080; }
+  .swot-card ul { list-style: none; }
+  .swot-card ul li {
+    font-size: 0.9rem; color: rgba(255,255,255,0.85);
+    padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .swot-card ul li::before { content: '→'; font-size: 0.8rem; flex-shrink: 0; margin-top: 2px; }
+  .swot-card.s ul li::before { color: var(--green); }
+  .swot-card.w ul li::before { color: #FFD700; }
+  .swot-card.o ul li::before { color: #60B8FF; }
+  .swot-card.t ul li::before { color: #FF8080; }
+
+  /* ── PESTLE ── */
+  .pestle-section { background: var(--white); }
+  .pestle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-top: 40px; }
+  .pestle-card {
+    border-radius: 14px; padding: 24px;
+    border-left: 4px solid var(--green);
+    background: var(--card-bg);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: all 0.25s;
+  }
+  .pestle-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(37,211,102,0.1); }
+  .pestle-letter {
+    font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+    color: var(--green); line-height: 1; margin-bottom: 4px;
+  }
+  .pestle-card h4 { font-size: 0.8rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .pestle-card p { font-size: 0.88rem; color: var(--gray); line-height: 1.7; }
+
+  /* ── BUSINESS MODEL ── */
+  .bm-section { background: var(--offwhite); }
+  .bm-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 40px; }
+  .bm-card {
+    background: var(--white); border-radius: 16px; padding: 28px;
+    border: 1px solid var(--gray-light);
+    transition: all 0.25s;
+  }
+  .bm-card:hover { border-color: var(--green); box-shadow: 0 8px 30px rgba(37,211,102,0.1); }
+  .bm-card .icon { font-size: 2rem; margin-bottom: 14px; }
+  .bm-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 12px; color: var(--black); }
+  .bm-card ul { list-style: none; }
+  .bm-card ul li { font-size: 0.88rem; color: var(--gray); padding: 5px 0; display: flex; align-items: flex-start; gap: 8px; }
+  .bm-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+  /* ── PRICING ── */
+  .pricing-section { background: var(--white); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+  .price-card {
+    border-radius: 20px; padding: 36px 28px;
+    border: 2px solid var(--gray-light);
+    position: relative; transition: all 0.3s;
+    background: var(--white);
+  }
+  .price-card:hover { border-color: var(--green); transform: translateY(-4px); }
+  .price-card.featured {
+    border-color: var(--green);
+    background: linear-gradient(135deg, #0A2E1E, #075E54);
+    color: #fff;
+    transform: scale(1.03);
+  }
+  .price-card.featured:hover { transform: scale(1.03) translateY(-4px); }
+  .badge-popular {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    background: var(--green); color: #fff;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 1px;
+    padding: 4px 16px; border-radius: 50px;
+  }
+  .price-name { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; color: var(--green); }
+  .price-card.featured .price-name { color: var(--green-light); }
+  .price-amount { font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+  .price-period { font-size: 0.82rem; color: var(--gray); margin-bottom: 24px; }
+  .price-card.featured .price-period { color: rgba(255,255,255,0.6); }
+  .price-features { list-style: none; margin-bottom: 28px; }
+  .price-features li { font-size: 0.88rem; padding: 7px 0; border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; gap: 8px; align-items: flex-start; }
+  .price-card.featured .price-features li { border-bottom-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); }
+  .price-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+  .btn-plan {
+    display: block; width: 100%; text-align: center;
+    padding: 12px; border-radius: 50px;
+    font-weight: 700; font-size: 0.9rem;
+    background: var(--gray-light); color: var(--black);
+    text-decoration: none; border: none; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-plan:hover { background: var(--green); color: #fff; }
+  .price-card.featured .btn-plan { background: var(--green); color: #fff; }
+  .price-card.featured .btn-plan:hover { background: #fff; color: var(--green-mid); }
+
+  /* ── DIGITAL MARKETING ── */
+  .dm-section { background: var(--offwhite); }
+  .dm-budget-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border-radius: 14px; overflow: hidden; }
+  .dm-budget-table thead th { background: var(--green-mid); color: #fff; padding: 14px 16px; text-align: left; font-family: 'Syne', sans-serif; font-weight: 600; }
+  .dm-budget-table tbody tr:nth-child(even) { background: var(--gray-light); }
+  .dm-budget-table tbody tr:last-child { background: var(--green); color: #fff; font-weight: 700; }
+  .dm-budget-table tbody td { padding: 12px 16px; }
+  .dm-platform-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; margin-top: 36px; }
+  .dm-platform {
+    background: var(--white); border-radius: 12px; padding: 20px 14px; text-align: center;
+    border: 1px solid var(--gray-light); transition: all 0.2s;
+  }
+  .dm-platform:hover { border-color: var(--green); transform: translateY(-3px); }
+  .dm-platform .plat-icon { font-size: 1.8rem; margin-bottom: 8px; }
+  .dm-platform h4 { font-size: 0.8rem; font-weight: 700; color: var(--black); }
+  .dm-platform p { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
+
+  /* ── INFLUENCER ── */
+  .influencer-section { background: var(--white); }
+  .inf-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border-radius: 14px; overflow: hidden; margin-top: 30px; }
+  .inf-table thead th { background: var(--green); color: #fff; padding: 13px 16px; text-align: left; font-family: 'Syne', sans-serif; font-weight: 600; }
+  .inf-table tbody tr:nth-child(even) { background: var(--gray-light); }
+  .inf-table tbody tr:last-child { background: var(--green-mid); color: #fff; font-weight: 700; }
+  .inf-table tbody td { padding: 11px 16px; }
+  .campaign-box {
+    background: linear-gradient(135deg, var(--green-mid), var(--green));
+    color: #fff; padding: 32px; border-radius: 16px; margin-top: 30px;
+  }
+  .campaign-box h3 { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; }
+  .campaign-box p { font-size: 0.92rem; opacity: 0.85; line-height: 1.6; }
+
+  /* ── COMMUNITY ── */
+  .community-section { background: var(--offwhite); }
+  .comm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 36px; }
+  .comm-card {
+    background: var(--white); border-radius: 12px; padding: 22px;
+    border: 1px solid var(--gray-light); text-align: center;
+    transition: all 0.2s;
+  }
+  .comm-card:hover { border-color: var(--green); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(37,211,102,0.1); }
+  .comm-card .icon { font-size: 2rem; margin-bottom: 10px; }
+  .comm-card h4 { font-size: 0.9rem; font-weight: 700; color: var(--black); margin-bottom: 6px; }
+  .comm-card p { font-size: 0.8rem; color: var(--gray); line-height: 1.5; }
+
+  /* ── UX DESIGN ── */
+  .ux-section { background: var(--white); }
+  .personas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 36px; }
+  .persona-card {
+    border-radius: 16px; padding: 28px;
+    border: 1px solid var(--gray-light);
+    background: var(--card-bg);
+  }
+  .persona-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--green), var(--green-mid)); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 14px; }
+  .persona-card h3 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--black); margin-bottom: 4px; }
+  .persona-card .meta { font-size: 0.8rem; color: var(--gray); margin-bottom: 16px; }
+  .persona-section { margin-bottom: 12px; }
+  .persona-section h5 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin-bottom: 6px; }
+  .persona-section ul { list-style: none; }
+  .persona-section ul li { font-size: 0.85rem; color: var(--gray); padding: 3px 0; display: flex; gap: 6px; }
+  .persona-section ul li::before { content: '•'; color: var(--green); flex-shrink: 0; }
+
+  .journey-steps { display: flex; flex-wrap: wrap; gap: 0; margin-top: 36px; counter-reset: step; }
+  .journey-step {
+    flex: 1; min-width: 150px; padding: 20px 16px;
+    background: var(--white); border-top: 3px solid var(--green-light);
+    position: relative; text-align: center;
+    transition: border-color 0.2s;
+  }
+  .journey-step:hover { border-top-color: var(--green); }
+  .journey-step:not(:last-child)::after {
+    content: '→'; position: absolute; right: -10px; top: 50%;
+    transform: translateY(-50%); color: var(--green); font-size: 1.2rem; z-index: 1;
+  }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--green); color: #fff;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .journey-step h4 { font-size: 0.85rem; font-weight: 700; color: var(--black); margin-bottom: 6px; }
+  .journey-step p { font-size: 0.78rem; color: var(--gray); line-height: 1.5; }
+
+  .design-thinking-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; margin-top: 36px; }
+  .dt-step {
+    background: var(--offwhite); border-radius: 12px; padding: 20px 14px; text-align: center;
+    border-bottom: 3px solid var(--green);
+  }
+  .dt-step .num { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--green); }
+  .dt-step h4 { font-size: 0.82rem; font-weight: 700; margin: 6px 0; color: var(--black); }
+  .dt-step p { font-size: 0.76rem; color: var(--gray); line-height: 1.5; }
+
+  /* ── ANALYTICS ── */
+  .analytics-section { background: var(--offwhite); }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 36px; }
+  .kpi-card {
+    background: var(--white); border-radius: 12px; padding: 22px;
+    border: 1px solid var(--gray-light);
+    transition: all 0.2s;
+  }
+  .kpi-card:hover { border-color: var(--green); }
+  .kpi-card .kpi-icon { font-size: 1.6rem; margin-bottom: 10px; }
+  .kpi-card h4 { font-size: 0.85rem; font-weight: 700; color: var(--black); margin-bottom: 6px; }
+  .kpi-card p { font-size: 0.78rem; color: var(--gray); line-height: 1.5; }
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 24px; }
+  .tool-item { background: var(--white); border-radius: 12px; padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--gray-light); }
+  .tool-item .icon { font-size: 1.5rem; flex-shrink: 0; }
+  .tool-item h4 { font-size: 0.85rem; font-weight: 700; color: var(--black); margin-bottom: 4px; }
+  .tool-item p { font-size: 0.78rem; color: var(--gray); line-height: 1.5; }
+
+  /* ── FINANCIALS ── */
+  .fin-section { background: var(--black); }
+  .fin-section .section-title { color: #fff; }
+  .fin-section .section-label { color: var(--green); }
+  .fin-section .section-sub { color: rgba(255,255,255,0.5); }
+  .fin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 40px; }
+  .fin-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; border-radius: 14px; overflow: hidden; }
+  .fin-table thead th { background: var(--green); color: #fff; padding: 13px 16px; text-align: left; font-family: 'Syne', sans-serif; }
+  .fin-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .fin-table tbody td { padding: 12px 16px; color: rgba(255,255,255,0.8); }
+  .fin-table tbody tr:last-child td { color: var(--green); font-weight: 700; }
+  .fin-highlight {
+    background: linear-gradient(135deg, #0A2E1E, #075E54);
+    border-radius: 16px; padding: 28px; margin-top: 0;
+  }
+  .fin-highlight h3 { font-family: 'Syne', sans-serif; color: var(--green); font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+  .fin-metric { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.88rem; color: rgba(255,255,255,0.75); }
+  .fin-metric:last-child { border: none; }
+  .fin-metric strong { color: var(--green); font-weight: 700; }
+  .revenue-pct { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+  .rev-bar { }
+  .rev-bar-label { display: flex; justify-content: space-between; font-size: 0.82rem; color: rgba(255,255,255,0.7); margin-bottom: 6px; }
+  .rev-bar-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 50px; overflow: hidden; }
+  .rev-bar-fill { height: 100%; border-radius: 50px; background: var(--green); }
+
+  /* ── LEGAL ── */
+  .legal-section { background: var(--white); }
+  .legal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 36px; }
+  .legal-card {
+    border-radius: 14px; padding: 28px;
+    border: 1px solid var(--gray-light);
+    background: var(--card-bg);
+    transition: all 0.25s;
+  }
+  .legal-card:hover { border-color: var(--green); box-shadow: 0 6px 20px rgba(37,211,102,0.08); }
+  .legal-card .icon { font-size: 2rem; margin-bottom: 12px; }
+  .legal-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 12px; color: var(--black); }
+  .legal-card ul { list-style: none; }
+  .legal-card ul li { font-size: 0.85rem; color: var(--gray); padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; border-bottom: 1px solid rgba(0,0,0,0.04); }
+  .legal-card ul li::before { content: '→'; color: var(--green); flex-shrink: 0; }
+
+  /* ── SCALING ── */
+  .scaling-section { background: var(--offwhite); }
+  .phase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 36px; }
+  .phase-card { background: var(--white); border-radius: 16px; padding: 28px; border: 1px solid var(--gray-light); }
+  .phase-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 14px; border-radius: 50px; margin-bottom: 14px; }
+  .phase-1 .phase-badge { background: rgba(37,211,102,0.1); color: var(--green); }
+  .phase-2 .phase-badge { background: rgba(96,184,255,0.1); color: #60B8FF; }
+  .phase-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 14px; color: var(--black); }
+  .phase-card ul { list-style: none; }
+  .phase-card ul li { font-size: 0.87rem; color: var(--gray); padding: 5px 0; display: flex; gap: 8px; }
+  .phase-card ul li::before { content: '●'; font-size: 0.5rem; color: var(--green); flex-shrink: 0; margin-top: 6px; }
+  .vision-block {
+    background: linear-gradient(135deg, var(--green-mid), var(--green));
+    color: #fff; border-radius: 16px; padding: 36px;
+    margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+  }
+  .vision-block h3 { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; margin-bottom: 12px; }
+  .vision-block p { font-size: 0.9rem; opacity: 0.85; line-height: 1.7; }
+  .vision-block ul { list-style: none; }
+  .vision-block ul li { font-size: 0.88rem; padding: 5px 0; opacity: 0.85; display: flex; gap: 8px; }
+  .vision-block ul li::before { content: '✓'; flex-shrink: 0; font-weight: 700; }
+
+  /* ── INVESTOR PITCH ── */
+  .pitch-section { background: var(--white); }
+  .pitch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 36px; }
+  .pitch-card {
+    border-radius: 14px; padding: 26px;
+    border: 1px solid var(--gray-light);
+    background: var(--card-bg);
+    transition: all 0.25s;
+  }
+  .pitch-card:hover { border-color: var(--green); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(37,211,102,0.1); }
+  .pitch-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--green-mid); margin-bottom: 10px; }
+  .pitch-card p { font-size: 0.86rem; color: var(--gray); line-height: 1.7; }
+  .pitch-card ul { list-style: none; margin-top: 8px; }
+  .pitch-card ul li { font-size: 0.85rem; color: var(--gray); padding: 4px 0; display: flex; gap: 8px; }
+  .pitch-card ul li::before { content: '•'; color: var(--green); flex-shrink: 0; }
+  .cta-invest {
+    background: linear-gradient(135deg, #0A2E1E 0%, #128C7E 100%);
+    border-radius: 20px; padding: 60px 5%; text-align: center; margin-top: 40px;
+  }
+  .cta-invest h2 { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 800; color: #fff; margin-bottom: 16px; }
+  .cta-invest p { font-size: 1rem; color: rgba(255,255,255,0.7); margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .cta-invest .btn-primary { display: inline-block; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--black); color: rgba(255,255,255,0.6);
+    padding: 60px 5% 30px;
+  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto; }
+  .footer-brand .nav-logo { margin-bottom: 16px; display: inline-flex; }
+  .footer-brand p { font-size: 0.85rem; line-height: 1.7; max-width: 280px; }
+  footer h4 { font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; margin-bottom: 16px; }
+  footer ul { list-style: none; }
+  footer ul li { padding: 5px 0; }
+  footer ul li a { font-size: 0.85rem; color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+  footer ul li a:hover { color: var(--green); }
+  .footer-bottom { max-width: 1200px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; flex-wrap: wrap; gap: 10px; }
+  .footer-bottom .brand { color: var(--green); font-weight: 700; }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width: 1024px) {
+    .bm-grid { grid-template-columns: 1fr 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+    .price-card.featured { transform: none; }
+    .price-card.featured:hover { transform: translateY(-4px); }
+    .dm-platform-grid { grid-template-columns: repeat(3, 1fr); }
+    .design-thinking-grid { grid-template-columns: repeat(3, 1fr); }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .fin-grid { grid-template-columns: 1fr; }
+    .vision-block { grid-template-columns: 1fr; }
+  }
+
+  @media(max-width: 768px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .hero-visual { order: -1; }
+    .phone-mockup { width: 240px; }
+    .idea-grid { grid-template-columns: 1fr; gap: 30px; }
+    .swot-grid { grid-template-columns: 1fr; }
+    .pestle-grid { grid-template-columns: 1fr; }
+    .bm-grid { grid-template-columns: 1fr; }
+    .personas-grid { grid-template-columns: 1fr; }
+    .phase-grid { grid-template-columns: 1fr; }
+    .legal-grid { grid-template-columns: 1fr; }
+    .design-thinking-grid { grid-template-columns: repeat(2, 1fr); }
+    .dm-platform-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero-stats { flex-wrap: wrap; gap: 20px; }
+    .journey-steps { flex-direction: column; }
+    .journey-step:not(:last-child)::after { display: none; }
+    .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+  }
+
+  @media(max-width: 480px) {
+    section { padding: 60px 5%; }
+    .design-thinking-grid { grid-template-columns: 1fr; }
+    .dm-platform-grid { grid-template-columns: repeat(2,1fr); }
+  }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav>
+  <a class="nav-logo" href="#">
+    <img src="images/logo.webp" alt="WAZAAR Logo" onerror="this.style.display='none'">
+    <span class="brand-name">WA<span>ZAAR</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#business-model">Model</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#marketing">Marketing</a></li>
+    <li><a href="#financials">Financials</a></li>
+    <li><a href="#investor">Invest</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="#investor" class="btn-account">Get Started</a>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Nav -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#about" onclick="toggleMenu()">About</a>
+  <a href="#business-model" onclick="toggleMenu()">Business Model</a>
+  <a href="#pricing" onclick="toggleMenu()">Pricing</a>
+  <a href="#marketing" onclick="toggleMenu()">Marketing</a>
+  <a href="#ux" onclick="toggleMenu()">UX Design</a>
+  <a href="#financials" onclick="toggleMenu()">Financials</a>
+  <a href="#investor" onclick="toggleMenu()">Investor Pitch</a>
+  <a href="#investor" class="btn-account" onclick="toggleMenu()">Get Started</a>
+</div>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="about">
+  <div class="hero-bg-dots"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner container">
+    <div class="hero-text">
+      <div class="hero-badge">🟢 WhatsApp Commerce Platform</div>
+      <h1>Turn Your <span class="highlight">WhatsApp</span><br>into a Fully<br>Automated Store</h1>
+      <p class="hero-tagline">WAZAAR empowers small businesses, women entrepreneurs, and students to run professional automated stores on WhatsApp — zero coding, zero website, zero complexity.</p>
+      <div class="hero-cta">
+        <a href="#pricing" class="btn-primary">Start Free Today</a>
+        <a href="#about-detail" class="btn-ghost">See How It Works</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="num">95%</div>
+          <div class="lbl">Sellers use WhatsApp</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">PKR 999</div>
+          <div class="lbl">Pro plan/month</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">0</div>
+          <div class="lbl">Coding required</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="phone-mockup">
+        <div class="phone-screen">
+          <div class="phone-statusbar">
+            <div class="dot"></div>
+            <span>WAZAAR Store • Online</span>
+          </div>
+          <div class="wa-chat">
+            <div class="wa-msg in">
+              <div class="wa-bubble in">Hi! I want to order 🎂<div class="wa-time">10:22 AM</div></div>
+            </div>
+            <div class="wa-msg out">
+              <div class="wa-bubble out"><strong>WAZAAR Bot 🤖</strong>Welcome to Aisha's Bakery! Type <b>menu</b> to browse our catalog 🍰<div class="wa-time">10:22 AM ✓✓</div></div>
+            </div>
+            <div class="wa-msg in">
+              <div class="wa-bubble in">menu<div class="wa-time">10:23 AM</div></div>
+            </div>
+            <div class="wa-msg out">
+              <div class="wa-bubble out"><strong>WAZAAR Bot 🤖</strong>🍫 Choc Cake – PKR 1,200<br>🎂 Birthday Cake – PKR 1,800<br>🧁 Cupcakes (6) – PKR 600<br><br>Reply with item number to order!<div class="wa-time">10:23 AM ✓✓</div></div>
+            </div>
+            <div class="wa-msg in">
+              <div class="wa-bubble in">1<div class="wa-time">10:24 AM</div></div>
+            </div>
+            <div class="wa-msg out">
+              <div class="wa-bubble out"><strong>WAZAAR Bot 🤖</strong>✅ Order #042 confirmed!<br>Choc Cake × 1 = PKR 1,200<br>Pay via Easypaisa 📱<div class="wa-time">10:24 AM ✓✓</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BIG IDEA / OVERVIEW ══ -->
+<section class="idea-section" id="about-detail">
+  <div class="container">
+    <div class="section-label">Business Overview</div>
+    <h2 class="section-title">One Idea That Changes Everything</h2>
+    <p class="section-sub">Most small businesses already sell on WhatsApp — they just sell manually. WAZAAR changes that.</p>
+
+    <div class="idea-grid reveal">
+      <div class="idea-content">
+        <p><strong>Mission:</strong> To empower small businesses, startups, women entrepreneurs, and students to develop self-controlled online stores on WhatsApp Business automation without extensive technical knowledge or significant investment.</p>
+        <p><strong>Vision:</strong> To become the leading digital commerce platform that revolutionizes WhatsApp Business into a highly effective global online marketplace for small entrepreneurs.</p>
+        <div class="big-idea-quote">
+          "Turn WhatsApp into a Fully Automated Store for Everyone."
+        </div>
+        <p>WAZAAR connects the problem, solution, product, marketing, UX, and revenue model into one unified digital strategy — making professional e-commerce accessible to every seller.</p>
+      </div>
+      <div>
+        <table class="alignment-table">
+          <thead>
+            <tr><th>Element</th><th>Alignment with Big Idea</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Problem</td><td>Manual replies &amp; order handling</td></tr>
+            <tr><td>Solution</td><td>Automated WhatsApp store</td></tr>
+            <tr><td>Product</td><td>WAZAAR platform</td></tr>
+            <tr><td>Campaign</td><td>#BuildYourWhatsAppStore</td></tr>
+            <tr><td>UX</td><td>No-code, mobile-first</td></tr>
+            <tr><td>Monetization</td><td>Affordable subscription</td></tr>
+            <tr><td>Impact</td><td>Empower small sellers</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MARKET TRENDS ══ -->
+<section class="trends-section">
+  <div class="container">
+    <div class="section-label">Market Opportunity</div>
+    <h2 class="section-title">Why Now? Why WAZAAR?</h2>
+    <p class="section-sub">Conversational commerce is exploding. Over 95% of Pakistani e-retailers use WhatsApp — yet no simple store builder exists for them.</p>
+    <div class="trends-grid reveal">
+      <div class="trend-card">
+        <div class="trend-icon">📈</div>
+        <h4>WhatsApp Business Automation Growth</h4>
+        <p>WhatsApp Business API adoption is accelerating globally, creating massive demand for automation tools.</p>
+      </div>
+      <div class="trend-card">
+        <div class="trend-icon">🔧</div>
+        <h4>No-Code Revolution</h4>
+        <p>Rising demand for no-code applications among non-technical users, especially in emerging markets.</p>
+      </div>
+      <div class="trend-card">
+        <div class="trend-icon">🏠</div>
+        <h4>Home & Micro-Enterprises</h4>
+        <p>Home-based and micro-businesses are the fastest-growing segment of Pakistan's digital economy.</p>
+      </div>
+      <div class="trend-card">
+        <div class="trend-icon">📱</div>
+        <h4>Mobile-First Commerce</h4>
+        <p>Social and mobile-first commerce dominates in developing markets where smartphones outnumber desktops.</p>
+      </div>
+      <div class="trend-card">
+        <div class="trend-icon">🤖</div>
+        <h4>AI-Powered Engagement</h4>
+        <p>AI-driven customer engagement tools are becoming essential for competitive small business operations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SWOT ══ -->
+<section class="swot-section">
+  <div class="container">
+    <div class="section-label">SWOT Analysis</div>
+    <h2 class="section-title">Strategic Position</h2>
+    <p class="section-sub">A clear-eyed view of WAZAAR's competitive strengths, challenges, and growth opportunities.</p>
+    <div class="swot-grid reveal">
+      <div class="swot-card s">
+        <h3>Strengths</h3>
+        <ul>
+          <li>Zero coding required — anyone can use it</li>
+          <li>Built on the familiar WhatsApp platform users already trust</li>
+          <li>Affordable, scalable pricing for small businesses</li>
+          <li>Mobile-first design optimized for low-bandwidth users</li>
+        </ul>
+      </div>
+      <div class="swot-card w">
+        <h3>Weaknesses</h3>
+        <ul>
+          <li>Dependency on WhatsApp Business API availability</li>
+          <li>Initial onboarding cost and learning curve</li>
+          <li>Limited offline or non-WhatsApp user reach</li>
+        </ul>
+      </div>
+      <div class="swot-card o">
+        <h3>Opportunities</h3>
+        <ul>
+          <li>AI automation integration for smarter replies</li>
+          <li>Growing digital entrepreneurship in South Asia</li>
+          <li>Expansion to Middle East, Africa and other WhatsApp-heavy markets</li>
+          <li>Government digital entrepreneurship initiatives</li>
+        </ul>
+      </div>
+      <div class="swot-card t">
+        <h3>Threats</h3>
+        <ul>
+          <li>WhatsApp API policy changes from Meta</li>
+          <li>Competition from international SaaS platforms</li>
+          <li>Internet shutdowns or platform restrictions</li>
+          <li>Currency fluctuations affecting cloud service costs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PESTLE ══ -->
+<section class="pestle-section">
+  <div class="container">
+    <div class="section-label">PESTLE Analysis</div>
+    <h2 class="section-title">Environmental Scan</h2>
+    <p class="section-sub">A comprehensive analysis of the macro-environmental factors shaping WAZAAR's operating landscape.</p>
+    <div class="pestle-grid reveal">
+      <div class="pestle-card">
+        <div class="pestle-letter">P</div>
+        <h4>Political</h4>
+        <p>Pakistan's government actively promotes digital entrepreneurship for youth and women through Ministry of IT programs. However, WAZAAR's reliance on Meta's WhatsApp means indirect exposure to international tech regulation and policy changes.</p>
+      </div>
+      <div class="pestle-card">
+        <div class="pestle-letter">E</div>
+        <h4>Economic</h4>
+        <p>Pakistan's large informal home-based business economy favors low-cost digital tools. Rising inflation and limited purchasing power strengthen the case for WAZAAR's freemium model. The growing gig economy further drives demand for affordable automation.</p>
+      </div>
+      <div class="pestle-card">
+        <div class="pestle-letter">S</div>
+        <h4>Social</h4>
+        <p>Social behavior strongly favors WhatsApp as a trusted selling platform, especially among women entrepreneurs and students. Cultural preference for bilingual (Urdu + English) communication supports WAZAAR's planned UX approach.</p>
+      </div>
+      <div class="pestle-card">
+        <div class="pestle-letter">T</div>
+        <h4>Technological</h4>
+        <p>Rapid growth in WhatsApp Business APIs, AI chatbots, and no-code tools directly supports WAZAAR's functionality. Increased smartphone penetration and affordable mobile internet expand the accessible user base significantly.</p>
+      </div>
+      <div class="pestle-card">
+        <div class="pestle-letter">L</div>
+        <h4>Legal</h4>
+        <p>WAZAAR must comply with Pakistani cyber laws and electronic transaction regulations. Strict adherence to Meta's WhatsApp Business API terms is essential, as violations could result in service suspension and loss of business continuity.</p>
+      </div>
+      <div class="pestle-card">
+        <div class="pestle-letter">E</div>
+        <h4>Environmental</h4>
+        <p>As a fully digital platform, WAZAAR has a minimal environmental footprint. By eliminating printed catalogs, physical shops, and paperwork, WAZAAR indirectly supports sustainable and paperless business practices.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BUSINESS MODEL ══ -->
+<section class="bm-section" id="business-model">
+  <div class="container">
+    <div class="section-label">Business Model</div>
+    <h2 class="section-title">How WAZAAR Creates Value</h2>
+    <p class="section-sub">A sustainable freemium SaaS model built for scalability, with multiple revenue streams and low operational overhead.</p>
+    <div class="bm-grid reveal">
+      <div class="bm-card">
+        <div class="icon">💰</div>
+        <h3>Revenue Streams</h3>
+        <ul>
+          <li>Monthly subscription plans (primary)</li>
+          <li>API automation add-on services</li>
+          <li>Custom store design packages</li>
+          <li>Affiliate marketing commissions</li>
+          <li>Sponsored listings & ad partnerships</li>
+        </ul>
+      </div>
+      <div class="bm-card">
+        <div class="icon">💎</div>
+        <h3>Value Proposition</h3>
+        <ul>
+          <li>Complete e-commerce experience on WhatsApp</li>
+          <li>No website, no app, no coding needed</li>
+          <li>Automated product catalog & order management</li>
+          <li>Integrated payment via Easypaisa & JazzCash</li>
+          <li>Real-time analytics and store insights</li>
+        </ul>
+      </div>
+      <div class="bm-card">
+        <div class="icon">🤝</div>
+        <h3>Key Partnerships</h3>
+        <ul>
+          <li>WhatsApp Cloud API (Meta)</li>
+          <li>Easypaisa &amp; JazzCash payment gateways</li>
+          <li>Micro-influencers &amp; business communities</li>
+          <li>Digital marketing agencies</li>
+          <li>Business educators &amp; course creators</li>
+        </ul>
+      </div>
+      <div class="bm-card">
+        <div class="icon">🏗️</div>
+        <h3>Cost Structure</h3>
+        <ul>
+          <li>WhatsApp API usage fees</li>
+          <li>Cloud hosting &amp; infrastructure maintenance</li>
+          <li>Digital marketing &amp; user acquisition</li>
+          <li>UX/UI design &amp; product development</li>
+          <li>Customer support &amp; onboarding</li>
+        </ul>
+      </div>
+      <div class="bm-card">
+        <div class="icon">🎯</div>
+        <h3>Target Audience</h3>
+        <ul>
+          <li>Clothing and thrift store sellers</li>
+          <li>Home-based bakers &amp; chefs</li>
+          <li>College students with startups</li>
+          <li>Service providers (tutors, beauty, freelancers)</li>
+          <li>Micro-businesses across Pakistan</li>
+        </ul>
+      </div>
+      <div class="bm-card">
+        <div class="icon">📦</div>
+        <h3>Core Product Features</h3>
+        <ul>
+          <li>No-code WhatsApp store builder</li>
+          <li>Automated chat flows &amp; product catalogs</li>
+          <li>Order management &amp; tracking dashboard</li>
+          <li>Payment link generation</li>
+          <li>Sales analytics &amp; reporting</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRICING ══ -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="section-label">Pricing Plans</div>
+    <h2 class="section-title">Simple, Affordable Pricing</h2>
+    <p class="section-sub">Start free and scale as your business grows. No hidden fees, no technical complexity.</p>
+    <div class="pricing-grid reveal">
+      <div class="price-card">
+        <div class="price-name">Free</div>
+        <div class="price-amount">PKR 0</div>
+        <div class="price-period">Forever free</div>
+        <ul class="price-features">
+          <li>Basic WhatsApp store setup</li>
+          <li>Up to 5 products</li>
+          <li>Manual order management</li>
+          <li>WAZAAR branding</li>
+          <li>Community support</li>
+        </ul>
+        <a href="#" class="btn-plan">Get Started Free</a>
+      </div>
+      <div class="price-card featured">
+        <div class="badge-popular">MOST POPULAR</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amount">PKR 999</div>
+        <div class="price-period">per month</div>
+        <ul class="price-features">
+          <li>Unlimited products</li>
+          <li>Full automation & chatbot flows</li>
+          <li>Order management dashboard</li>
+          <li>Payment integration (Easypaisa, JazzCash)</li>
+          <li>Sales analytics & reports</li>
+          <li>Custom store branding</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#" class="btn-plan">Start Pro Plan</a>
+      </div>
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-amount">PKR 399</div>
+        <div class="price-period">per month</div>
+        <ul class="price-features">
+          <li>Up to 20 products</li>
+          <li>Basic automated replies</li>
+          <li>Order tracking</li>
+          <li>Single payment gateway</li>
+          <li>Basic analytics</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#" class="btn-plan">Start Starter Plan</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTENT STRATEGY ══ -->
+<section class="dm-section" id="marketing">
+  <div class="container">
+    <div class="section-label">Content & Digital Marketing</div>
+    <h2 class="section-title">Growth Through Storytelling</h2>
+    <p class="section-sub">Educational and promotional content that tells real stories: a seller's problem → the WhatsApp store solution → measurable success outcomes.</p>
+
+    <div class="dm-platform-grid reveal">
+      <div class="dm-platform">
+        <div class="plat-icon">📸</div>
+        <h4>Instagram</h4>
+        <p>Reels &amp; testimonials</p>
+      </div>
+      <div class="dm-platform">
+        <div class="plat-icon">🎵</div>
+        <h4>TikTok</h4>
+        <p>Viral growth hacks</p>
+      </div>
+      <div class="dm-platform">
+        <div class="plat-icon">👥</div>
+        <h4>Facebook</h4>
+        <p>Community groups</p>
+      </div>
+      <div class="dm-platform">
+        <div class="plat-icon">▶️</div>
+        <h4>YouTube</h4>
+        <p>Tutorials &amp; guides</p>
+      </div>
+      <div class="dm-platform">
+        <div class="plat-icon">💬</div>
+        <h4>WhatsApp</h4>
+        <p>Direct engagement</p>
+      </div>
+    </div>
+
+    <h3 style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-top:40px;margin-bottom:4px;color:var(--black);">6-Month Digital Marketing Budget — PKR 70,000</h3>
+    <table class="dm-budget-table reveal">
+      <thead>
+        <tr><th>Platform</th><th>Objective</th><th>Budget (PKR)</th><th>% Allocation</th><th>Rationale</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Instagram Ads</td><td>Awareness + Conversion</td><td>25,000</td><td>36%</td><td>High reach among students &amp; home businesses</td></tr>
+        <tr><td>TikTok Ads</td><td>Awareness + Viral Reach</td><td>15,000</td><td>21%</td><td>Strong organic + paid reach for short tutorials</td></tr>
+        <tr><td>Influencer Marketing</td><td>Trust &amp; Education</td><td>20,000</td><td>29%</td><td>Demonstrates real use cases authentically</td></tr>
+        <tr><td>YouTube (Tutorial Boost)</td><td>Product Education</td><td>5,000</td><td>7%</td><td>Long-form learning content for serious users</td></tr>
+        <tr><td>WhatsApp Promotion</td><td>Retargeting</td><td>5,000</td><td>7%</td><td>Direct engagement &amp; follow-ups</td></tr>
+        <tr><td><strong>TOTAL</strong></td><td></td><td><strong>70,000</strong></td><td><strong>100%</strong></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ INFLUENCER ══ -->
+<section class="influencer-section">
+  <div class="container">
+    <div class="section-label">Influencer Strategy</div>
+    <h2 class="section-title">Micro-Influencer Marketing Plan</h2>
+    <p class="section-sub">WAZAAR collaborates with micro-influencers to ensure trust, affordability, and high engagement among target communities.</p>
+    <table class="inf-table reveal">
+      <thead>
+        <tr><th>Influencer Type</th><th>Platform</th><th>Followers</th><th>Qty</th><th>Cost (PKR)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Business Educator</td><td>Instagram</td><td>20k – 40k</td><td>2</td><td>8,000</td></tr>
+        <tr><td>Home-Based Seller</td><td>TikTok</td><td>10k – 30k</td><td>2</td><td>6,000</td></tr>
+        <tr><td>Student Entrepreneur</td><td>Instagram Reels</td><td>5k – 15k</td><td>2</td><td>4,000</td></tr>
+        <tr><td>Urdu Tech Explainer</td><td>YouTube Shorts</td><td>10k – 25k</td><td>1</td><td>2,000</td></tr>
+        <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>7</strong></td><td><strong>20,000</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="campaign-box reveal">
+      <h3>#BuildYourWhatsAppStore Challenge</h3>
+      <p>Our signature viral campaign invites sellers to share their WhatsApp store journey. Real users, real results, real community. Mock Ad: <em>"Start selling smarter. Build your WhatsApp store today — zero coding required."</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ COMMUNITY ══ -->
+<section class="community-section">
+  <div class="container">
+    <div class="section-label">Community & Engagement</div>
+    <h2 class="section-title">Building a Seller Community</h2>
+    <p class="section-sub">WAZAAR's brand is friendly, supportive, and tech-driven. Our voice is simple, motivational, and solution-oriented.</p>
+    <div class="comm-grid reveal">
+      <div class="comm-card">
+        <div class="icon">💬</div>
+        <h4>WhatsApp Communities</h4>
+        <p>Direct engagement with active seller groups and real-time support</p>
+      </div>
+      <div class="comm-card">
+        <div class="icon">👥</div>
+        <h4>Facebook Groups</h4>
+        <p>Community groups for knowledge sharing, tips, and success stories</p>
+      </div>
+      <div class="comm-card">
+        <div class="icon">📣</div>
+        <h4>Instagram Broadcast</h4>
+        <p>Exclusive updates, feature releases, and promotional offers</p>
+      </div>
+      <div class="comm-card">
+        <div class="icon">📊</div>
+        <h4>Weekly Polls</h4>
+        <p>Community-driven product decisions and feature prioritization</p>
+      </div>
+      <div class="comm-card">
+        <div class="icon">🏆</div>
+        <h4>Challenges</h4>
+        <p>Viral seller challenges that showcase real WAZAAR success stories</p>
+      </div>
+      <div class="comm-card">
+        <div class="icon">🎙️</div>
+        <h4>Live Q&A Sessions</h4>
+        <p>Regular live sessions with business coaches and successful sellers</p>
+      </div>
+      <div class="comm-card">
+        <div class="icon">💡</div>
+        <h4>Weekly Business Tips</h4>
+        <p>Actionable tips for growing sales on WhatsApp every week</p>
+      </div>
+      <div class="comm-card">
+        <div class="icon">🎁</div>
+        <h4>Loyalty Discounts</h4>
+        <p>Personalized retention offers and feature-based recommendations for long-term users</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ UX DESIGN ══ -->
+<section class="ux-section" id="ux">
+  <div class="container">
+    <div class="section-label">UX Design & Design Thinking</div>
+    <h2 class="section-title">Designed for Real People</h2>
+    <p class="section-sub">WAZAAR is built with deep empathy for non-technical sellers. Mobile-first, bilingual, icon-driven — no learning curve required.</p>
+
+    <div class="personas-grid reveal">
+      <div class="persona-card">
+        <div class="persona-avatar">👩</div>
+        <h3>Ayesha — Primary Persona</h3>
+        <div class="meta">Age 23 · Karachi · Online Clothing &amp; Thrift Store</div>
+        <div class="persona-section">
+          <h5>Pain Points</h5>
+          <ul>
+            <li>Repeating the same replies daily to customers</li>
+            <li>Managing orders entirely manually via WhatsApp</li>
+            <li>Losing customers due to delayed responses</li>
+          </ul>
+        </div>
+        <div class="persona-section">
+          <h5>Goals</h5>
+          <ul>
+            <li>Look professional without building a website</li>
+            <li>Automate order confirmations &amp; replies</li>
+            <li>Save time and significantly increase sales</li>
+          </ul>
+        </div>
+      </div>
+      <div class="persona-card">
+        <div class="persona-avatar">👨</div>
+        <h3>Ali — Secondary Persona</h3>
+        <div class="meta">Age 21 · Student Startup Founder · Print-on-Demand Merchandise</div>
+        <div class="persona-section">
+          <h5>Needs</h5>
+          <ul>
+            <li>Low-cost automation solution</li>
+            <li>Absolutely no coding required</li>
+            <li>Fast setup in minutes, not days</li>
+          </ul>
+        </div>
+        <div class="persona-section">
+          <h5>Frustrations</h5>
+          <ul>
+            <li>Expensive websites and hosting fees</li>
+            <li>Complex tools designed for tech experts</li>
+            <li>No affordable integrated payment solution</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-top:48px;margin-bottom:6px;color:var(--black);">User Journey Map</h3>
+    <div class="journey-steps reveal">
+      <div class="journey-step"><div class="step-num">1</div><h4>Awareness</h4><p>Discovers WAZAAR via Instagram Reel or TikTok tutorial about WhatsApp automation</p></div>
+      <div class="journey-step"><div class="step-num">2</div><h4>Interest</h4><p>Visits WAZAAR landing page and understands features through explainer video</p></div>
+      <div class="journey-step"><div class="step-num">3</div><h4>Onboarding</h4><p>Signs up using WhatsApp number, selects a store template, adds products via simple dashboard</p></div>
+      <div class="journey-step"><div class="step-num">4</div><h4>Activation</h4><p>Automated replies go live. Customers start browsing products inside WhatsApp</p></div>
+      <div class="journey-step"><div class="step-num">5</div><h4>Retention</h4><p>User receives analytics and feature tips, upgrades to paid plan for advanced capabilities</p></div>
+    </div>
+
+    <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-top:48px;margin-bottom:6px;color:var(--black);">Design Thinking Framework</h3>
+    <div class="design-thinking-grid reveal">
+      <div class="dt-step"><div class="num">01</div><h4>Empathize</h4><p>Understand the struggles of small WhatsApp sellers first-hand</p></div>
+      <div class="dt-step"><div class="num">02</div><h4>Define</h4><p>Manual selling and complete lack of automation tools</p></div>
+      <div class="dt-step"><div class="num">03</div><h4>Ideate</h4><p>No-code WhatsApp store builder accessible to all</p></div>
+      <div class="dt-step"><div class="num">04</div><h4>Prototype</h4><p>Simple dashboards, chatbot flows, and product management</p></div>
+      <div class="dt-step"><div class="num">05</div><h4>Test</h4><p>Feedback-based continuous feature improvements and iteration</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ANALYTICS ══ -->
+<section class="analytics-section">
+  <div class="container">
+    <div class="section-label">Analytics & Data</div>
+    <h2 class="section-title">Data-Driven Decision Making</h2>
+    <p class="section-sub">Every feature and marketing decision at WAZAAR follows a Test → Measure → Improve cycle to ensure continuous growth and optimization.</p>
+    <div class="kpi-grid reveal">
+      <div class="kpi-card"><div class="kpi-icon">🏪</div><h4>Active Stores</h4><p>Number of active stores created and live on the platform</p></div>
+      <div class="kpi-card"><div class="kpi-icon">👤</div><h4>Monthly Active Users</h4><p>Monthly active sellers and their engagement frequency</p></div>
+      <div class="kpi-card"><div class="kpi-icon">🛒</div><h4>Order Conversion Rate</h4><p>Customer inquiries converted to confirmed orders via WhatsApp</p></div>
+      <div class="kpi-card"><div class="kpi-icon">⚡</div><h4>Response Time</h4><p>Average automated response time to customer messages</p></div>
+      <div class="kpi-card"><div class="kpi-icon">💵</div><h4>ARPU</h4><p>Average revenue per user across free and paid subscriptions</p></div>
+      <div class="kpi-card"><div class="kpi-icon">📊</div><h4>CAC & Retention</h4><p>Customer acquisition cost and long-term retention rate tracking</p></div>
+    </div>
+    <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-top:36px;margin-bottom:16px;color:var(--black);">Analytics Tools Stack</h3>
+    <div class="tools-grid reveal">
+      <div class="tool-item"><div class="icon">📈</div><div><h4>Google Analytics 4</h4><p>Track user behavior, traffic sources, and conversion events</p></div></div>
+      <div class="tool-item"><div class="icon">📣</div><div><h4>Meta Ads Manager</h4><p>Measure Facebook and Instagram ad campaign performance</p></div></div>
+      <div class="tool-item"><div class="icon">💬</div><div><h4>WhatsApp Business Insights</h4><p>Monitor message delivery, reads, and customer response rates</p></div></div>
+      <div class="tool-item"><div class="icon">🗂️</div><div><h4>CRM Dashboard</h4><p>Track seller activity, orders, and subscription usage patterns</p></div></div>
+      <div class="tool-item"><div class="icon">📉</div><div><h4>In-App Analytics</h4><p>Custom dashboards for real-time store performance and sales trends</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FINANCIALS ══ -->
+<section class="fin-section" id="financials">
+  <div class="container">
+    <div class="section-label">Financial Overview</div>
+    <h2 class="section-title">Numbers That Make Sense</h2>
+    <p class="section-sub">Low seed capital, high scalability, recurring revenue. WAZAAR is built for sustainable profitability.</p>
+    <div class="fin-grid reveal">
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;color:var(--green);font-size:0.9rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">Estimated Startup Expenses</h3>
+        <table class="fin-table">
+          <thead><tr><th>Expense Item</th><th>Amount (PKR)</th></tr></thead>
+          <tbody>
+            <tr><td>MVP Development</td><td>120,000</td></tr>
+            <tr><td>API &amp; Cloud Hosting</td><td>50,000</td></tr>
+            <tr><td>UI/UX &amp; Design</td><td>30,000</td></tr>
+            <tr><td>Marketing &amp; Ads</td><td>70,000</td></tr>
+            <tr><td>Miscellaneous</td><td>30,000</td></tr>
+            <tr><td><strong>Total Seed Capital</strong></td><td><strong>300,000</strong></td></tr>
+          </tbody>
+        </table>
+
+        <h3 style="font-family:'Syne',sans-serif;color:var(--green);font-size:0.9rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:24px 0 14px;">6-Month Revenue Projection (300 Users, 20% Paid)</h3>
+        <table class="fin-table">
+          <thead><tr><th>Month</th><th>Paid Users</th><th>Revenue (PKR)</th></tr></thead>
+          <tbody>
+            <tr><td>Month 1</td><td>20</td><td>12,000</td></tr>
+            <tr><td>Month 3</td><td>70</td><td>42,000</td></tr>
+            <tr><td>Month 6</td><td>180</td><td>108,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="fin-highlight">
+          <h3>12-Month Financial Outlook</h3>
+          <div class="fin-metric"><span>Target Paid Users</span><strong>500+</strong></div>
+          <div class="fin-metric"><span>Monthly Revenue Target</span><strong>PKR 300,000+</strong></div>
+          <div class="fin-metric"><span>Revenue Model</span><strong>Recurring SaaS</strong></div>
+          <div class="fin-metric"><span>Operational Cost</span><strong>Low</strong></div>
+          <div class="fin-metric"><span>Profitability</span><strong>Scalable</strong></div>
+          <div class="fin-metric"><span>Seed Capital Required</span><strong>PKR 250k–350k</strong></div>
+        </div>
+        <div class="fin-highlight" style="margin-top:16px;">
+          <h3>Revenue Breakdown (Expected)</h3>
+          <div class="revenue-pct">
+            <div class="rev-bar">
+              <div class="rev-bar-label"><span>Subscriptions</span><span>70%</span></div>
+              <div class="rev-bar-track"><div class="rev-bar-fill" style="width:70%"></div></div>
+            </div>
+            <div class="rev-bar">
+              <div class="rev-bar-label"><span>Add-on Services</span><span>20%</span></div>
+              <div class="rev-bar-track"><div class="rev-bar-fill" style="width:20%;background:#60B8FF"></div></div>
+            </div>
+            <div class="rev-bar">
+              <div class="rev-bar-label"><span>Affiliate &amp; Ads</span><span>10%</span></div>
+              <div class="rev-bar-track"><div class="rev-bar-fill" style="width:10%;background:#FFD700"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ LEGAL ══ -->
+<section class="legal-section">
+  <div class="container">
+    <div class="section-label">Legal & Ethical</div>
+    <h2 class="section-title">Trust, Transparency & Compliance</h2>
+    <p class="section-sub">WAZAAR operates with full legal compliance and strong ethical marketing standards to build lasting trust with every seller.</p>
+    <div class="legal-grid reveal">
+      <div class="legal-card">
+        <div class="icon">©️</div>
+        <h3>Copyright & Intellectual Property</h3>
+        <ul>
+          <li>WAZAAR brand, logo, interface, and automation logic protected under IP rights</li>
+          <li>Sellers responsible for ownership and legality of their product content</li>
+          <li>Sale of counterfeit or copyright-infringing products strictly prohibited</li>
+          <li>IP violations result in immediate store suspension or termination</li>
+        </ul>
+      </div>
+      <div class="legal-card">
+        <div class="icon">🔒</div>
+        <h3>Data Privacy & Protection</h3>
+        <ul>
+          <li>User data encrypted and stored securely via cloud infrastructure</li>
+          <li>Strict adherence to Meta's WhatsApp Cloud API data protection policies</li>
+          <li>No selling, misuse, or third-party sharing of customer data without consent</li>
+          <li>Payment data handled exclusively by Easypaisa and JazzCash — not stored by WAZAAR</li>
+        </ul>
+      </div>
+      <div class="legal-card">
+        <div class="icon">📢</div>
+        <h3>Ethical Marketing Guidelines</h3>
+        <ul>
+          <li>No false income claims — no "guaranteed sales" or "instant success" promises</li>
+          <li>Transparent pricing with absolutely no hidden charges</li>
+          <li>Honest communication about feature limitations and API dependencies</li>
+          <li>All influencer partnerships clearly disclosed as paid or sponsored</li>
+          <li>User success stories shared only with permission and factual data</li>
+        </ul>
+      </div>
+      <div class="legal-card">
+        <div class="icon">📋</div>
+        <h3>Terms of Use & Disclaimer</h3>
+        <ul>
+          <li>WAZAAR is a digital automation platform — not a sales guarantor</li>
+          <li>Business owners fully responsible for products, pricing, and legal compliance</li>
+          <li>Platform performance subject to WhatsApp Business API policy changes</li>
+          <li>Clear, simple language used throughout — no legal jargon for everyday users</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SCALING ══ -->
+<section class="scaling-section">
+  <div class="container">
+    <div class="section-label">Growth & Scaling</div>
+    <h2 class="section-title">From Pakistan to the World</h2>
+    <p class="section-sub">Since WAZAAR is fully digital, scaling to new markets requires minimal infrastructure and very low operational cost.</p>
+    <div class="phase-grid reveal">
+      <div class="phase-card phase-1">
+        <div class="phase-badge">Phase 1 — National</div>
+        <h3>Pakistan Market Growth</h3>
+        <ul>
+          <li>Target home-based businesses, students, and women entrepreneurs</li>
+          <li>Focus on WhatsApp-heavy cities and urban communities</li>
+          <li>Partner with local training centers and universities</li>
+          <li>Collaborate with women entrepreneurship programs and NGOs</li>
+          <li>Build strong community presence via social media</li>
+        </ul>
+      </div>
+      <div class="phase-card phase-2">
+        <div class="phase-badge">Phase 2 — Global</div>
+        <h3>Regional & International Expansion</h3>
+        <ul>
+          <li>Expand to WhatsApp-dominant markets: South Asia, Middle East, Africa</li>
+          <li>Offer region-specific pricing tiers and localized store templates</li>
+          <li>Introduce global payment and cross-border shipping integrations</li>
+          <li>Build multi-language support including Arabic, Hindi, Swahili</li>
+          <li>Partner with international incubators and accelerators</li>
+        </ul>
+      </div>
+    </div>
+    <div class="vision-block reveal">
+      <div>
+        <h3>Long-Term Vision</h3>
+        <p>WAZAAR aims to become the go-to digital commerce solution for non-technical sellers worldwide — transforming WhatsApp into a powerful micro-commerce ecosystem that empowers millions.</p>
+      </div>
+      <div>
+        <h3>Platform Goals</h3>
+        <ul>
+          <li>Empower millions of small sellers to go fully digital</li>
+          <li>Reduce dependence on expensive websites and marketplaces</li>
+          <li>Support financial independence for women and youth globally</li>
+          <li>Evolve into a one-stop growth partner for every small business</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ INVESTOR PITCH ══ -->
+<section class="pitch-section" id="investor">
+  <div class="container">
+    <div class="section-label">Investor Pitch</div>
+    <h2 class="section-title">Why Invest in WAZAAR?</h2>
+    <p class="section-sub">Low risk. High scalability. Recurring revenue. Real social impact. WAZAAR is built for early-stage investors who believe in empowering the underserved.</p>
+    <div class="pitch-grid reveal">
+      <div class="pitch-card">
+        <h3>🔴 The Problem</h3>
+        <p>Thousands of small businesses sell on WhatsApp daily but do so manually — slow replies, no order tracking, no analytics. Creating a website or app is too expensive and complex for most small sellers.</p>
+      </div>
+      <div class="pitch-card">
+        <h3>🟢 The Opportunity</h3>
+        <p>WhatsApp is already the most trusted daily communication tool. A simple, affordable automation system built on top of it addresses a massive, underserved, and rapidly growing market segment.</p>
+      </div>
+      <div class="pitch-card">
+        <h3>💼 Business Model</h3>
+        <p>Subscription-based SaaS (freemium to pro). Low entry cost, flexible pricing, and multiple revenue streams ensure predictable monthly recurring revenue with minimal churn risk.</p>
+      </div>
+      <div class="pitch-card">
+        <h3>📊 Market Size</h3>
+        <p>Over 95% of Pakistani e-retailers use WhatsApp as their primary sales channel. The same pattern exists across India, UAE, and Africa — creating a massive, continuously growing total addressable market.</p>
+      </div>
+      <div class="pitch-card">
+        <h3>📈 Revenue Plan</h3>
+        <ul>
+          <li>Monthly subscription plans (primary income)</li>
+          <li>Paid add-on services and custom features</li>
+          <li>Store design &amp; setup services</li>
+          <li>Future partnership and licensing revenue</li>
+        </ul>
+      </div>
+      <div class="pitch-card">
+        <h3>🚀 Scalability</h3>
+        <p>Fully digital platform — scaling to new markets requires no physical infrastructure. Language, pricing, and feature customization can expand WAZAAR to any WhatsApp-heavy market globally.</p>
+      </div>
+      <div class="pitch-card">
+        <h3>🤝 Strategic Partners</h3>
+        <ul>
+          <li>WhatsApp Business API providers</li>
+          <li>Easypaisa, JazzCash, Stripe-type payment services</li>
+          <li>Logistics and delivery companies</li>
+          <li>Incubators, NGOs, women-led business programs</li>
+        </ul>
+      </div>
+      <div class="pitch-card">
+        <h3>💡 Investor Fit</h3>
+        <ul>
+          <li>Impact investors focused on financial inclusion &amp; women empowerment</li>
+          <li>Tech investors interested in low-cost, high-scale SaaS</li>
+          <li>Early-stage accelerators and seed-fund investors</li>
+          <li>High scalability + recurring revenue + social impact</li>
+        </ul>
+      </div>
+      <div class="pitch-card">
+        <h3>💰 Seed Capital</h3>
+        <p>PKR 250,000 – 350,000 required for MVP development, WhatsApp API integration, cloud infrastructure, UI/UX design, and initial digital marketing to achieve early product-market fit.</p>
+      </div>
+    </div>
+    <div class="cta-invest reveal">
+      <h2>WAZAAR = Growth + Impact + Sustainability</h2>
+      <p>Be part of the digital commerce revolution for Pakistan's entrepreneurs. Invest in a platform that creates real economic opportunity.</p>
+      <a href="mailto:invest@wazaar.com" class="btn-primary">Contact Us to Invest</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a class="nav-logo" href="#">
+        <img src="images/logo.webp" alt="WAZAAR Logo" onerror="this.style.display='none'">
+        <span class="brand-name" style="color:#fff;">WA<span>ZAAR</span></span>
+      </a>
+      <p>Turning WhatsApp into a fully automated store for every small business. No code, no website, no complexity — just growth.</p>
+    </div>
+    <div>
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="#pricing">Pricing Plans</a></li>
+        <li><a href="#business-model">Features</a></li>
+        <li><a href="#ux">How It Works</a></li>
+        <li><a href="#">API Docs</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#investor">Investor Pitch</a></li>
+        <li><a href="#marketing">Marketing</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Terms of Use</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Data Protection</a></li>
+        <li><a href="#">Cookie Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 <span class="brand">WAZAAR</span>. All rights reserved.</span>
+    <span>Built for Pakistan's entrepreneurs 🇵🇰</span>
+  </div>
+</footer>
+
+<script>
+  // Mobile nav toggle
+  function toggleMenu() {
+    const nav = document.getElementById('mobileNav');
+    nav.classList.toggle('open');
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Stagger children of reveal containers
+  document.querySelectorAll('.trends-grid, .swot-grid, .pestle-grid, .bm-grid, .comm-grid, .kpi-grid, .legal-grid, .pitch-grid, .personas-grid').forEach(grid => {
+    grid.querySelectorAll(':scope > *').forEach((child, i) => {
+      child.style.transitionDelay = (i * 0.07) + 's';
+    });
+  });
+</script>
+</body>
+</html>
